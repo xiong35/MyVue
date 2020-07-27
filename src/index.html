@@ -9,8 +9,12 @@
     <title>Document</title>
   </head>
   <body>
-    <script>
-      console.log("000");
-    </script>
+    <div id="app">
+      <p v-html="test"></p>
+      <input type="text" v-model="form" />
+      <input type="text" v-model="form" />
+      <button v-on:click="increment">改变值</button>
+      {{form}}
+    </div>
   </body>
 </html>

@@ -15,7 +15,17 @@ module.exports = {
   },
 
   // loader 配置
-  module: {},
+  module: {
+    rules: [
+      {
+        // 下载 babel-loader, @babel/preset-env, @babel/core, @babel/polifill
+        // 在js 中加入 `import "@babel/polifill"`
+        test: /\.js$/,
+        exclude: /node_modules/,
+        loader: "babel-loader",
+      },
+    ],
+  },
 
   plugins: [
     // 下载 html-webpack-plugin
@@ -63,4 +73,5 @@ module.exports = {
     //   },
     // },
   },
+  devtool: "eval-source-map",
 };
