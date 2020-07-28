@@ -8,13 +8,5 @@
     />
     <title>Document</title>
   </head>
-  <body>
-    <div id="app">
-      <p v-html="test"></p>
-      <input type="text" v-model="form" />
-      <input type="text" v-model="form" />
-      <button v-on:click="increment">改变值</button>
-      {{form}}
-    </div>
-  </body>
+  <body><div id="parent"><div id="app"><p v-html="test"></p>{{form}}<input type="text" v-model="form" /><button v-on:click="increment" >+</button></div></div></body>
 </html>
