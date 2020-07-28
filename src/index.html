@@ -8,5 +8,5 @@
     />
     <title>Document</title>
   </head>
-  <body><div id="parent"><div id="app">{{form}}<button v-on:click="increment" >+</button></div></div></body>
+  <body><div id="parent"><div id="app">{{form}}<p v-html="form"></p><input type="text" v-model="form" /><button v-on:click="increment" >+</button></div></div></body>
 </html>

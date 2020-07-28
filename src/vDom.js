@@ -297,34 +297,10 @@ var _patchProps = (element, props) => {
     }
     // create / update
     else if (obj.type === propPatchTypes.UPDATE) {
-      if (obj.propName === "innerHTML") {
-        element.innerHTML = obj.value;
-      } else {
-        element.setAttribute(obj.propName, obj.value);
-      }
+      // debugger;
+      element[obj.propName] = obj.value;
     }
   });
-};
-
-var render = (parent, vDom) => {
-  let i = 1;
-  let preDom = getDom(1),
-    newDom;
-
-  const el = createElement(preDom);
-  parent.appendChild(el);
-
-  let timeout = setInterval(() => {
-    if (i > 15) {
-      clearInterval(timeout);
-    }
-    newDom = getDom(++i);
-    const patch = diff(preDom, newDom);
-    console.log(patch);
-    preDom = JSON.parse(JSON.stringify(newDom));
-
-    patch(parent, patch);
-  }, 1000);
 };
 
 var _sameVnodeType = (a, b) => {

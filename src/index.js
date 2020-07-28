@@ -17,6 +17,7 @@ class MyVue {
       children: [],
     };
     this.compile(this.$el, this.vDom); // 解析dom
+    oldTree = JSON.parse(JSON.stringify(this.vDom));
   }
 
   observe = (data) => {
@@ -56,12 +57,12 @@ class MyVue {
       if (node.nodeType === 3) {
         var text = node.textContent.trim();
         if (!text) node.parentNode.removeChild(node);
-        this.compileText(Vel, "text", text);
+        this.compileText(Vel, "text", text, node);
         vNode.tag = "TEXT";
       }
       // element node
       else if (node.nodeType === 1) {
-        // Vel.children.push(vNode);
+        Vel.children.push(vNode);
 
         let attrs = node.getAttributeNames();
 
@@ -84,7 +85,9 @@ class MyVue {
             this.observeTasks[attrVal].push(
               new Watcher(vNode, this, attrVal, "innerHTML")
             );
-            vNode.props.innerHTML = this.data[attrVal];
+            vNode.props.innerHTML = node.innerHTML = this.data[
+              attrVal
+            ];
           } else if (attr.startsWith("v-on:")) {
             let event = attr.split(":")[1];
             let attrVal = node.getAttribute(attr);
@@ -107,32 +110,31 @@ class MyVue {
     });
   };
 
-  compileText = (vNode, type, text) => {
+  compileText = (vNode, type, text, rNode) => {
     let reg = /\{\{(.*?)\}\}/g;
     if (reg.test(text)) {
-      vNode.children.push(
-        text.replace(reg, (matched, group1) => {
-          let code = group1.trim();
+      vNode.children[0] = text.replace(reg, (matched, group1) => {
+        let code = group1.trim();
 
-          let tasks = this.observeTasks[code] || [];
-          tasks.push(new Watcher(vNode, this, code, type));
+        let tasks = this.observeTasks[code] || [];
+        tasks.push(new Watcher(vNode, this, code, type));
 
-          if (code.split(".").length > 1) {
-            // 如果是形如 foo.bar 的代码, 就逐层找下去
-            let v = null;
-            // foo[0]无法处理
-            code.split(".").forEach((val) => {
-              v = v ? v[val] : this[val];
-            });
-            return v;
-          } else {
-            return this[code];
-          }
-        })
-      );
+        if (code.split(".").length > 1) {
+          // 如果是形如 foo.bar 的代码, 就逐层找下去
+          let v = null;
+          // foo[0]无法处理
+          code.split(".").forEach((val) => {
+            v = v ? v[val] : this[val];
+          });
+          return v;
+        } else {
+          return this[code];
+        }
+      });
     } else {
-      vNode.children.push(text);
+      vNode.children[0] = text;
     }
+    rNode.nodeValue = vNode.children[0];
   };
 }
 
@@ -150,6 +152,7 @@ function proxy(target, sourceKey, key) {
 }
 
 var timeout = null;
+var oldTree = {};
 
 class Watcher {
   constructor(vNode, vm, code, type) {
@@ -161,15 +164,6 @@ class Watcher {
   }
 
   notify = () => {
-    if (timeout) {
-      return;
-    }
-    timeout = setTimeout(() => {
-      timeout = null;
-    }, 20);
-    // debugger;
-
-    let oldTree = JSON.parse(JSON.stringify(this.vm.vDom));
     let v = null;
     // foo[0]无法处理
     this.code.split(".").forEach((val) => {
@@ -182,12 +176,23 @@ class Watcher {
     } else if (this.type === "innerHTML") {
       this.vNode.props.innerHTML = v;
     }
-    console.log("vm:", this.vm);
-    let patchObj = diff(oldTree, this.vm.vDom);
-    console.log("patchObj:", patchObj);
-    debugger;
+
+    if (timeout) {
+      return;
+    }
+    timeout = setTimeout(() => {
+      // debugger;
+      timeout = null;
+      console.log("vm:", this.vm);
+      let patchObj = diff(oldTree, this.vm.vDom);
+      console.log("patchObj:", patchObj);
+      patch(document.getElementById("parent"), patchObj);
+
+      oldTree = JSON.parse(JSON.stringify(this.vm.vDom));
+    }, 20);
+
+    // debugger;
     // patch(this.vm.$el, patchObj);
-    patch(document.getElementById("parent"), patchObj);
   };
 }
 
