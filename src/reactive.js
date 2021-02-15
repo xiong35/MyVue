@@ -55,13 +55,3 @@ function watchEffect(effect) {
   effect();
   activeEffect = null;
 }
-
-const state = reactive({
-  count: 0,
-});
-
-watchEffect(() => {
-  console.log(state.count);
-});
-
-state.count++;
