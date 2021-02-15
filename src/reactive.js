@@ -46,11 +46,11 @@ const reactiveHandlers = {
   },
 };
 
-function reactive(raw) {
+export function reactive(raw) {
   return new Proxy(raw, reactiveHandlers);
 }
 
-function watchEffect(effect) {
+export function watchEffect(effect) {
   activeEffect = effect;
   effect();
   activeEffect = null;

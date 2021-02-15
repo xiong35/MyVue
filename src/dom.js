@@ -1,4 +1,4 @@
-function h(tag, props, children) {
+export function h(tag, props, children) {
   return {
     tag,
     props,
@@ -6,14 +6,18 @@ function h(tag, props, children) {
   };
 }
 
-function mount(vNode, container) {
+export function mount(vNode, container) {
   const el = (vNode.el = document.createElement(vNode.tag));
 
   // props
   if (vNode.props) {
     for (const key in vNode.props) {
       const value = vNode.props[key];
-      el.setAttribute(key, value);
+      if (key.startsWith("on")) {
+        el.addEventListener(key.slice(2).toLowerCase(), value);
+      } else {
+        el.setAttribute(key, value);
+      }
     }
   }
 
@@ -31,8 +35,8 @@ function mount(vNode, container) {
   container.appendChild(el);
 }
 
-function patch(n1, n2) {
-  const el = n1.el;
+export function patch(n1, n2) {
+  const el = (n2.el = n1.el);
 
   if (n1.tag === n2.tag) {
     // props
