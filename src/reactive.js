@@ -1,7 +1,20 @@
 let activeEffect;
 
 class Dep {
-  subscribers = new Set();
+  constructor(value) {
+    this.subscribers = new Set();
+    this._value = value;
+  }
+
+  get value() {
+    this.depend();
+    return this._value;
+  }
+
+  set value(newVal) {
+    this._value = newVal;
+    this.notify();
+  }
 
   depend() {
     if (activeEffect) {
@@ -20,11 +33,10 @@ function watchEffect(effect) {
   activeEffect = null;
 }
 
-const dep = new Dep();
+const dep = new Dep("hello");
 
 watchEffect(() => {
-  dep.depend();
-  console.log("effect run");
+  console.log(dep.value);
 });
 
-dep.notify();
+dep.value = "changed";
